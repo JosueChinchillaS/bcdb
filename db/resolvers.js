@@ -5,62 +5,24 @@ const User = require('../models/User');
 
 const bcryptjs = require('bcryptjs');
 
-// const users = [
-//   {
-//     name: 'Josué',
-//     email: 'josuechinchilla@gmail.com',
-//     password: 'josue123',
-//     firstSurName: 'Chinchilla',
-//     secondSurName: 'Salazar',
-//     state: 'Exalumno',
-//     instrument: 'Clarinete',
-//     grade: '',
-//     phone: '+506 8444-0538',
-//     rol: 'Líder',
-//     carnet: '2011474',
-//   },
-//   {
-//     name: 'Luis Fernando',
-//     email: 'lsolano@gmail.com',
-//     password: 'luis1223',
-//     firstSurName: 'Solano',
-//     secondSurName: 'Gamboa',
-//     state: '',
-//     instrument: '',
-//     grade: '',
-//     phone: '+506 87912093',
-//     rol: 'Director',
-//     carnet: '2012912',
-//   },
-// ];
+require('dotenv').config({ path: '.env' });
 
-// const profiles = [
-//   {
-//     identification: '1183609300',
-//     birthday: '',
-//     sex: 'Masculino',
-//     bloodType: 'B+',
-//     address: 'Poás de Aserrí',
-//     familyMemberName: 'Josué Chinchilla Salazar',
-//     familyMemberNumber: '89169888',
-//     familyMemberNumberId: '108000052',
-//     familyMemberRelationship: 'Padre',
-//     illness: 'Migraña',
-//     medicine: 'Ibuprofeno, Parecetamol',
-//     medicineOnTour: 'Ibuprofeno',
-//     vaccinated: 'Sí',
-//     vaccineNumber: '3',
-//     vaccineManufacturer: 'Pfizer',
-//   },
-// ];
+const jwt = require('jsonwebtoken');
 
-// Resolvers
+// Create token
+const token = (user, secret, expiresIn) => {
+  const { id, email, name, firstSurName } = user;
+  return jwt.sign({ id, email, name, firstSurName }, secret, { expiresIn });
+};
 
 const resolvers = {
   // Queries
   Query: {
-    getUsers: () => 'users',
-    getProfiles: () => 'profiles',
+    getUser: async (_, { token }) => {
+      const userId = await jwt.verify(token, process.env.SECRET);
+      return userId;
+    },
+   
   },
 
   // Mutations
@@ -87,6 +49,25 @@ const resolvers = {
       } catch (error) {
         console.log(error);
       }
+    },
+    authUser: async (_, { input }) => {
+      const { email, password } = input;
+
+      // User exists
+      const userExist = await User.findOne({ email });
+
+      if (!userExist) {
+        throw new Error('El usuario no existe!');
+      }
+
+      // Check password
+      const isCorrect = await bcryptjs.compare(password, userExist.password);
+
+      if (!isCorrect) {
+        throw new Error('La contraseña es incorrecta!');
+      }
+      // Create token
+      return { token: token(userExist, process.env.SECRET, '24h') };
     },
   },
 };

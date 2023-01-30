@@ -32,8 +32,18 @@ const typeDefs = gql`
     carnet: String
   }
 
+  type Token {
+    token: String
+  }
+
+  input AuthInput {
+    email: String!
+    password: String!
+  }
+
   type Mutation {
     createUser(input: UserInput): User
+    authUser(input: AuthInput): Token
   }
 
   type Profile {
@@ -65,6 +75,7 @@ const typeDefs = gql`
   }
 
   type Query {
+    getUser(token: String!): User
     getUsers: [User]
     getProfiles: [Profile]
     getInventory: [Inventory]
