@@ -1,0 +1,21 @@
+{
+  "name": "bcdb-app",
+  "version": "1.0.0",
+  "description": "Aplicación de la Banda CEDES Don Bosco",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "author": "Jossué Chinchilla Salazar",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^3.11.1",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.3",
+    "mongoose": "^6.9.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
