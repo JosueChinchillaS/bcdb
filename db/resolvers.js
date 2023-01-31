@@ -36,7 +36,7 @@ const resolvers = {
       }
     },
 
-    getMedicalRecord: async (_, { id }) => {
+    getMedicalRecordById: async (_, { id }) => {
       // Check if exist
       const medicalRecord = await MedicalRecord.findById(id);
       if (!medicalRecord) {
@@ -44,6 +44,47 @@ const resolvers = {
       }
 
       return medicalRecord;
+    },
+
+    getMedicalRecordByUser: async (_, {}, ctx) => {
+      try {
+        const medicalRecord = await MedicalRecord.find({
+          user: ctx.user.id.toString(),
+        });
+        return medicalRecord;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    //Inventory
+    getInventories: async () => {
+      try {
+        const inventory = await Inventory.find({});
+        return inventory;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    getInventoryById: async (_, { id }) => {
+      // Check if exist
+      const inventory = await Inventory.findById(id);
+      if (!inventory) {
+        throw new Error('No se ha encontrado la ficha médica');
+      }
+
+      return inventory;
+    },
+
+    getInventoryByUser: async (_, {}, ctx) => {
+      try {
+        const inventory = await Inventory.find({
+          user: ctx.user.id.toString(),
+        });
+        return inventory;
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 
@@ -98,7 +139,6 @@ const resolvers = {
       const medicalRecord = new MedicalRecord(input);
       medicalRecord.user = ctx.user.id;
 
-
       try {
         // Save medical record in the data base
 
@@ -143,7 +183,7 @@ const resolvers = {
       //Assign user
       const newInventory = new Inventory(input);
       newInventory.user = ctx.user.id;
-    
+
       //Save in database
       try {
         newInventory.save();
@@ -151,6 +191,33 @@ const resolvers = {
       } catch (error) {
         console.log(error);
       }
+    },
+    updateInventory: async (_, { id, input }) => {
+      // Check if exist
+      let inventory = await Inventory.findById(id);
+      if (!inventory) {
+        throw new Error('No se ha encontrado el instrumento');
+      }
+
+      // Save in data base
+
+      inventory = await Inventory.findOneAndUpdate({ _id: id }, input, {
+        new: true,
+      });
+      return inventory;
+    },
+
+    deleteInventory: async (_, { id }) => {
+      // Check if exist
+      let inventory = await Inventory.findById(id);
+      if (!inventory) {
+        throw new Error('No se ha encontrado el instrumento');
+      }
+
+      // Delete
+
+      await Inventory.findOneAndDelete({ _id: id });
+      return 'Se ha eliminado el instrumento';
     },
   },
 };

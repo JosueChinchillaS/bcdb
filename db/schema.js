@@ -108,6 +108,8 @@ const typeDefs = gql`
 
     #Inventories
     createInventory(input: InventoryInput): Inventory
+    updateInventory(id: ID!, input: InventoryInput): Inventory
+    deleteInventory(id: ID!): String
   }
 
   type Query {
@@ -117,10 +119,12 @@ const typeDefs = gql`
 
     # Medical Record
     getMedicalRecords: [MedicalRecord]
-    getMedicalRecord(id: ID!): MedicalRecord
-
+    getMedicalRecordById(id: ID!): MedicalRecord
+    getMedicalRecordByUser: [MedicalRecord]
     # Inventory
-    getInventory: [Inventory]
+    getInventories: [Inventory]
+    getInventoryByUser: [Inventory]
+    getInventoryById(id: ID!): Inventory
   }
 `;
 
