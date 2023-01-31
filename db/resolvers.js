@@ -1,5 +1,7 @@
 // Importing the models
 const User = require('../models/User');
+const MedicalRecord = require('../models/MedicalRecord');
+const Inventory = require('../models/Inventory');
 
 // Bcrypt
 
@@ -18,15 +20,36 @@ const token = (user, secret, expiresIn) => {
 const resolvers = {
   // Queries
   Query: {
+    // Users
     getUser: async (_, { token }) => {
       const userId = await jwt.verify(token, process.env.SECRET);
       return userId;
     },
-   
+
+    //Medical Records
+    getMedicalRecords: async () => {
+      try {
+        const medicalRecords = await MedicalRecord.find({});
+        return medicalRecords;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    getMedicalRecord: async (_, { id }) => {
+      // Check if exist
+      const medicalRecord = await MedicalRecord.findById(id);
+      if (!medicalRecord) {
+        throw new Error('No se ha encontrado la ficha médica');
+      }
+
+      return medicalRecord;
+    },
   },
 
   // Mutations
   Mutation: {
+    //User Starts
     createUser: async (_, { input }) => {
       const { email, password } = input;
 
@@ -68,6 +91,66 @@ const resolvers = {
       }
       // Create token
       return { token: token(userExist, process.env.SECRET, '24h') };
+    },
+
+    // Medical Record Starts
+    createMedicalRecord: async (_, { input }, ctx) => {
+      const medicalRecord = new MedicalRecord(input);
+      medicalRecord.user = ctx.user.id;
+
+
+      try {
+        // Save medical record in the data base
+
+        medicalRecord.save();
+
+        return medicalRecord;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    updateMedicalRecord: async (_, { id, input }) => {
+      // Check if exist
+      let medicalRecord = await MedicalRecord.findById(id);
+      if (!medicalRecord) {
+        throw new Error('No se ha encontrado la ficha médica');
+      }
+
+      // Save in data base
+
+      medicalRecord = await MedicalRecord.findOneAndUpdate({ _id: id }, input, {
+        new: true,
+      });
+      return medicalRecord;
+    },
+
+    deleteMedicalRecord: async (_, { id }) => {
+      // Check if exist
+      let medicalRecord = await MedicalRecord.findById(id);
+      if (!medicalRecord) {
+        throw new Error('No se ha encontrado la ficha médica');
+      }
+
+      // Delete
+
+      await MedicalRecord.findOneAndDelete({ _id: id });
+      return 'Se ha eliminado la ficha médica';
+    },
+
+    //Inventory Starts
+    createInventory: async (_, { input }, ctx) => {
+      //Assign user
+      const newInventory = new Inventory(input);
+      newInventory.user = ctx.user.id;
+    
+      //Save in database
+      try {
+        newInventory.save();
+        return newInventory;
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };

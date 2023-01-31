@@ -32,22 +32,8 @@ const typeDefs = gql`
     carnet: String
   }
 
-  type Token {
-    token: String
-  }
-
-  input AuthInput {
-    email: String!
-    password: String!
-  }
-
-  type Mutation {
-    createUser(input: UserInput): User
-    authUser(input: AuthInput): Token
-  }
-
-  type Profile {
-    user: User
+  type MedicalRecord {
+    id: ID
     identification: String
     birthday: String
     sex: String
@@ -58,26 +44,82 @@ const typeDefs = gql`
     familyMemberNumberId: String
     familyMemberRelationship: String
     illness: [String]
-    medicine: String
+    medicine: [String]
     medicineOnTour: [String]
     vaccinated: String
     vaccineNumber: Int
     vaccineManufacturer: String
+    user: ID
+  }
+  input MedicalRecordInput {
+    identification: String!
+    birthday: String!
+    sex: String!
+    bloodType: String!
+    address: String!
+    familyMemberName: String!
+    familyMemberNumber: String!
+    familyMemberNumberId: String!
+    familyMemberRelationship: String!
+    illness: String!
+    medicine: [String]!
+    medicineOnTour: [String]!
+    vaccinated: String!
+    vaccineNumber: Int!
+    vaccineManufacturer: String!
   }
 
   type Inventory {
-    user: User
+    id: ID
     condition: String
     brand: String
     model: String
     numberId: String
     serie: String
+    user: ID
+  }
+
+  input InventoryInput {
+    condition: String!
+    brand: String!
+    model: String
+    numberId: String!
+    serie: String
+  }
+
+  type Token {
+    token: String
+  }
+
+  input AuthInput {
+    email: String!
+    password: String!
+  }
+
+  type Mutation {
+    #Users
+    createUser(input: UserInput): User
+    authUser(input: AuthInput): Token
+
+    #Medical Record
+    createMedicalRecord(input: MedicalRecordInput): MedicalRecord
+    updateMedicalRecord(id: ID!, input: MedicalRecordInput): MedicalRecord
+    deleteMedicalRecord(id: ID!): String
+
+    #Inventories
+    createInventory(input: InventoryInput): Inventory
   }
 
   type Query {
+    # Users
     getUser(token: String!): User
     getUsers: [User]
-    getProfiles: [Profile]
+
+    # Medical Record
+    getMedicalRecords: [MedicalRecord]
+    getMedicalRecord(id: ID!): MedicalRecord
+
+    # Inventory
     getInventory: [Inventory]
   }
 `;

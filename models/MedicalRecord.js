@@ -23,6 +23,6 @@ const MedicalRecordSchema = new mongoose.Schema({
 });
 
 module.exports = MedicalRecord = mongoose.model(
-  'medicalrecord',
+  'Medicalrecord',
   MedicalRecordSchema
 );
